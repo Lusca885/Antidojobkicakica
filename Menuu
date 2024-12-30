@@ -1,0 +1,839 @@
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+
+local authorizedIDs = {
+    2793956678,
+    4159938187,
+    1620030850
+}
+
+local function isAuthorized(player)
+    for _, id in ipairs(authorizedIDs) do
+        if player.UserId == id then
+            return true
+        end
+    end
+    return false
+end
+
+local player = game:GetService("Players").LocalPlayer
+if not isAuthorized(player) then
+    player:Kick("Você não está autorizado a usar este menu piranha KK.")
+    return
+end
+
+local Window = OrionLib:MakeWindow({
+    Name = "Spectador Hub V1",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "Spectador Hub V1"
+})
+
+OrionLib:MakeNotification({
+    Name = "Aviso",
+    Content = "Olá, exploiter, NÃO USE ESSE SCRIPTEM SERVIDORES PUBLICOS DO JOGO FIGHTING ACADEMY ! 😡",
+    Image = "rbxassetid://4483345998",
+    Time = 8 -- Tempo que a notificação ficará visível (em segundos)
+})
+
+local TabFarms = Window:MakeTab({
+    Name = "Farms novos",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+TabFarms:AddLabel("Todos os scripts precisam de Auto Clicker")
+
+local missionCoords = Vector3.new(-1071.29, 10.10, -1299.06)
+local npcCoords = {
+    Vector3.new(-1024.22, 10.10, -1349.36),
+    Vector3.new(-1051.34, 10.10, -1433.55),
+    Vector3.new(-981.36, 10.10, -1463.35),
+    Vector3.new(-859.90, 10.10, -1450.89),
+    Vector3.new(-854.08, 10.10, -1379.46),
+    Vector3.new(-928.99, 10.10, -1310.65),
+    Vector3.new(-971.01, 10.10, -1289.84),
+    Vector3.new(-950.25, 10.10, -1377.54)
+}
+
+local running = false
+local speed = 75 -- Velocidade do elevador (aumentado para ser mais rápido)
+
+local function elevatorMove(startPos, endPos)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
+    if humanoidRootPart then
+        local distance = (endPos - startPos).Magnitude
+        local duration = distance / speed
+        local elapsedTime = 0
+
+        while elapsedTime < duration do
+            if not running then break end
+            local alpha = elapsedTime / duration
+            local newPos = startPos:Lerp(endPos, alpha) -- Interpola entre startPos e endPos
+            humanoidRootPart.CFrame = CFrame.new(newPos)
+            elapsedTime = elapsedTime + game:GetService("RunService").Heartbeat:Wait()
+        end
+
+        if running then
+            humanoidRootPart.CFrame = CFrame.new(endPos) 
+        end
+    end
+end
+
+local function missionNpcInteraction()
+    print("Interagindo com o NPC da missão...")
+    wait(7) 
+end
+
+local function npcInteraction(coords)
+    print("Interagindo com o NPC em: " .. tostring(coords))
+    wait(1) 
+end
+
+local function elevatorSystem()
+    while running do
+        elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, missionCoords)
+        if not running then break end
+        missionNpcInteraction()
+       
+        for _, coords in ipairs(npcCoords) do
+            if not running then break end
+            elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, coords)
+            if not running then break end
+            npcInteraction(coords)
+        end
+        
+        if not running then break end
+        elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, missionCoords)
+    end
+end
+
+local function startElevator()
+    if not running then
+        running = true
+        spawn(elevatorSystem) -- Inicia o processo de movimentação
+    end
+end
+
+local function stopElevator()
+    running = false
+end
+
+local player = game.Players.LocalPlayer
+local combatItem
+
+-- Função para equipar o item 'Combat'
+local function equiparCombate()
+    if player then
+        local backpack = player.Backpack
+        combatItem = backpack:FindFirstChild("Combat")
+        if combatItem then
+            combatItem.Parent = player.Character
+        else
+            warn("Item 'Combate' não encontrado na mochila.")
+        end
+    else
+        warn("Jogador não encontrado.")
+    end
+end
+
+-- Função para desequipar o item 'Combat'
+local function desequiparCombate()
+    if player and combatItem and player.Character then
+        combatItem.Parent = player.Backpack
+    end
+end
+
+-- Função que realiza o ciclo de equipar e desequipar a cada 0,3 segundos
+local function cicloEquiparDesequipar()
+    while running do
+        equiparCombate()
+        wait(0.3)
+        desequiparCombate()
+        wait(0.3)
+    end
+end
+
+TabFarms:AddToggle({
+    Name = "Auto Farm NPCS LEVEL 30 (V1)",
+    Default = false,
+    Callback = function(state)
+        running = state
+        if running then
+            -- Inicia o sistema de elevador em uma nova thread
+            spawn(elevatorSystem)
+            spawn(cicloEquiparDesequipar)
+        else
+            stopElevator() -- Para o sistema de elevador
+        end
+    end
+})
+
+local missionCoords = Vector3.new(-655.21, 24.53, -1187.81)
+local npcCoords = {
+    Vector3.new(-747.96, 24.13, -1220.91),
+    Vector3.new(-718.34, 24.13, -1233.69),
+    Vector3.new(-721.92, 24.13, -1264.63),
+    Vector3.new(-699.76, 24.13, -1293.81),
+    Vector3.new(-702.82, 24.13, -1333.12)
+}
+
+local running = false
+local speed = 75 -- Velocidade do elevador
+
+local function elevatorMove(startPos, endPos)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
+    if humanoidRootPart then
+        local distance = (endPos - startPos).Magnitude
+        local duration = distance / speed
+        local elapsedTime = 0
+
+        while elapsedTime < duration do
+            if not running then return end 
+            local alpha = elapsedTime / duration
+            local newPos = startPos:Lerp(endPos, alpha)
+            humanoidRootPart.CFrame = CFrame.new(newPos)
+            elapsedTime = elapsedTime + game:GetService("RunService").Heartbeat:Wait()
+        end
+
+        humanoidRootPart.CFrame = CFrame.new(endPos)
+    end
+end
+
+local function missionNpcInteraction()
+    print("Interagindo com o NPC da missão...")
+    wait(7)
+end
+
+local function npcInteraction(coords)
+    print("Interagindo com o NPC em: " .. tostring(coords))
+    wait(1)
+end
+
+local function elevatorSystem()
+    while running do
+        elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, missionCoords)
+        if not running then break end 
+        missionNpcInteraction()
+        if not running then break end 
+        
+        for _, coords in ipairs(npcCoords) do
+            elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, coords)
+            if not running then break end -- Verifica se o sistema ainda está ativo
+            npcInteraction(coords)
+            if not running then break end -- Verifica se o sistema ainda está ativo
+        end
+        
+        elevatorMove(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, missionCoords)
+    end
+end
+
+local player = game.Players.LocalPlayer
+local combatItem
+
+local function equiparCombate()
+    if player then
+        local backpack = player.Backpack
+        combatItem = backpack:FindFirstChild("Combat")
+        if combatItem then
+            combatItem.Parent = player.Character
+        else
+            warn("Item 'Combat' não encontrado na mochila.")
+        end
+    else
+        warn("Jogador não encontrado.")
+    end
+end
+
+local function desequiparCombate()
+    if player and combatItem and player.Character then
+        combatItem.Parent = player.Backpack
+    end
+end
+
+local function cicloEquiparDesequipar()
+    while running do
+        equiparCombate()
+        wait(0.3)
+        desequiparCombate()
+        wait(0.3)
+    end
+end
+
+TabFarms:AddToggle({
+    Name = "Auto Farm NPCS LEVEL 50 (V1)",
+    Default = false,
+    Callback = function(state)
+        running = state
+        if running then
+            -- Inicia o sistema de elevador em uma nova thread
+            spawn(elevatorSystem)
+            spawn(cicloEquiparDesequipar)
+        end
+    end
+})
+
+-- Variável para controlar o estado do Auto Boss
+local autoBossEnabled = false
+local autoBossCoroutine
+
+-- Função que contém o script de Auto Boss
+local function autoBossScript()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local elevatorSpeed = 85 -- Velocidade do elevador
+    local combateInterval = 0.5 -- Intervalo entre golpes
+
+    -- Exibir mensagem no início do script
+    local function showMessage(message, duration)
+        local msg = Instance.new("Message", game.Workspace)
+        msg.Text = message
+        wait(duration)
+        msg:Destroy()
+    end
+
+    -- Mostrar mensagem de aviso
+    showMessage("NÃO USE EM SERVER PUBLICO !", 1)
+
+    -- Sistema de elevador
+    local function moveWithElevator(targetPosition)
+        local currentPosition = humanoidRootPart.Position
+        local direction = (targetPosition - currentPosition).Unit
+        local distance = (targetPosition - currentPosition).Magnitude
+
+        for step = 0, distance, elevatorSpeed * 0.1 do
+            local newPosition = currentPosition + direction * step
+            humanoidRootPart.CFrame = CFrame.new(newPosition)
+            wait(0.1)
+        end
+
+        -- Certifique-se de que o jogador está exatamente na posição final
+        humanoidRootPart.CFrame = CFrame.new(targetPosition)
+    end
+
+    -- Função para simular clique no ClickDetector
+    local function fireClickDetector(clickDetector)
+        if clickDetector then
+            fireclickdetector(clickDetector)
+            print("ClickDetector acionado com sucesso")
+        else
+            warn("ClickDetector não encontrado")
+        end
+    end
+
+    -- Função para equipar combate
+    local function equiparCombate()
+        if player then
+            local backpack = player.Backpack
+            local combateItem = backpack:FindFirstChild("Combat")
+            if combateItem then
+                combateItem.Parent = player.Character
+                print("Combate equipado")
+            else
+                warn("Item 'Combat' não encontrado na mochila.")
+            end
+        else
+            warn("Jogador não encontrado.")
+        end
+    end
+
+    -- Função para desequipar combate
+    local function desequiparCombate()
+        if player and player.Character then
+            local combateItem = player.Character:FindFirstChild("Combat")
+            if combateItem then
+                combateItem.Parent = player.Backpack
+                print("Combate desequipado")
+            end
+        end
+    end
+
+    -- Função para bater no boss
+    local function baterNoBoss()
+        local combatEvent = game:GetService("ReplicatedStorage").Events.combat
+        if combatEvent then
+            combatEvent:FireServer() -- Simula o evento de combate
+            print("Bateu no boss")
+        else
+            warn("Evento de combate não encontrado")
+        end
+    end
+
+    -- Função para verificar se o boss está presente
+    local function bossPresente(bossPosition)
+        local success, result = pcall(function()
+            return game:GetService("Workspace"):FindPartOnRayWithWhitelist(Ray.new(bossPosition + Vector3.new(0, 100, 0), Vector3.new(0, -200, 0)), {game:GetService("Workspace").Npcs.Folder})
+        end)
+        return success and result and result:IsDescendantOf(game:GetService("Workspace").Npcs.Folder)
+    end
+
+    -- Função para grudar atrás do boss por 3 segundos e bater no boss
+    local function grudarAtrasDoBossEBater(boss)
+        local bossHRP = boss:WaitForChild("HumanoidRootPart")
+        if bossHRP then
+            local startTime = tick() -- Tempo atual
+            equiparCombate()
+            while autoBossEnabled and tick() - startTime < 3 do
+                local attachPosition = bossHRP.Position - bossHRP.CFrame.LookVector * 1 -- Posição atrás do boss
+                humanoidRootPart.CFrame = CFrame.new(attachPosition)
+                baterNoBoss()
+                wait(combateInterval) -- Intervalo entre golpes
+            end
+            desequiparCombate()
+        end
+    end
+
+    while autoBossEnabled do
+        -- Primeira posição: Quest do boss de Karate
+        local questPositionKarate = game:GetService("Workspace").Interactive.NPCQUESTBOSSKARATE.NpcTalk.Position
+        moveWithElevator(questPositionKarate)
+
+        -- Simula o clique no ClickDetector para pegar a missão imediatamente
+        local clickDetectorKarate = game:GetService("Workspace").Interactive.NPCQUESTBOSSKARATE.NpcTalk:FindFirstChildOfClass("ClickDetector")
+        fireClickDetector(clickDetectorKarate)
+
+        -- Espera 7 segundos na posição da missão
+        wait(7)
+
+        -- Segunda posição: Boss de Karate
+        local bossPositionKarate = game:GetService("Workspace").Npcs.Folder.Karate_Boss.PlayerBox.Position
+        moveWithElevator(bossPositionKarate)
+
+        -- Espera até que o boss de Karate esteja presente
+        while not bossPresente(bossPositionKarate) and autoBossEnabled do
+            wait(1)
+        end
+
+        -- Grudar atrás do boss por 3 segundos e bater no boss
+        grudarAtrasDoBossEBater(game:GetService("Workspace").Npcs.Folder.Karate_Boss)
+
+        -- Espera 15 segundos após derrotar o boss antes de continuar para a próxima missão
+        wait(12)
+
+        -- Primeira posição: Quest do boss de Kung Fu
+        local questPositionKungFu = game:GetService("Workspace").Interactive.NPCQUESTBOSSKUNGFU.NpcTalk.Position
+        moveWithElevator(questPositionKungFu)
+
+        -- Simula o clique no ClickDetector para pegar a missão imediatamente
+        local clickDetectorKungFu = game:GetService("Workspace").Interactive.NPCQUESTBOSSKUNGFU.NpcTalk:FindFirstChildOfClass("ClickDetector")
+        fireClickDetector(clickDetectorKungFu)
+
+        -- Espera 7 segundos na posição da missão
+        wait(7)
+
+        -- Segunda posição: Boss de Kung Fu
+        local bossPositionKungFu = game:GetService("Workspace").Npcs.Folder.KungFu_Boss.PlayerBox.Position
+        moveWithElevator(bossPositionKungFu)
+
+        -- Espera até que o boss de Kung Fu esteja presente
+        while not bossPresente(bossPositionKungFu) and autoBossEnabled do
+            wait(1)
+        end
+
+        -- Grudar atrás do boss por 3 segundos e bater no boss
+        grudarAtrasDoBossEBater(game:GetService("Workspace").Npcs.Folder.KungFu_Boss)
+
+        -- Espera 15 segundos após derrotar o boss antes de continuar para a próxima missão
+        wait(12)
+    end
+end
+
+-- Adicione um botão toggle na aba "Farms" para o Auto Boss
+TabFarms:AddToggle({
+    Name = "Auto Farm 2 Boss",
+    Default = false,
+    Callback = function(value)
+        autoBossEnabled = value
+        if autoBossEnabled then
+            print("Auto Boss ativado")
+            autoBossCoroutine = coroutine.create(autoBossScript)
+            coroutine.resume(autoBossCoroutine)
+        else
+            print("Auto Boss desativado")
+            if autoBossCoroutine then
+                coroutine.close(autoBossCoroutine)
+                autoBossCoroutine = nil
+            end
+        end
+    end
+})
+
+TabFarms:AddLabel("Esse script Possui um intervalo de 11 segundos para ir pro Boss")
+TabFarms:AddLabel("Para garantir que o outro boss tenha nascidoe não bugar")
+
+
+local PVPTab = Window:MakeTab({
+    Name = "PVP",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+PVPTab:AddButton({
+    Name = "Nostyle",
+    Callback = function()
+        local args = {
+            [1] = 0,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+PVPTab:AddButton({
+    Name = "Boxe",
+    Callback = function()
+        local args = {
+            [1] = 1,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+PVPTab:AddButton({
+    Name = "Kickboxing",
+    Callback = function()
+        local args = {
+            [1] = 2,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+PVPTab:AddButton({
+    Name = "Muaythai",
+    Callback = function()
+        local args = {
+            [1] = 3,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+PVPTab:AddButton({
+    Name = "Capoeira",
+    Callback = function()
+        local args = {
+            [1] = 4,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+PVPTab:AddButton({
+    Name = "Taekwondo",
+    Callback = function()
+        local args = {
+            [1] = 5,
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("SelectMartialArt"):InvokeServer(unpack(args))
+    end
+})
+
+local TabTeleports = Window:MakeTab({
+    Name = "Teleportes",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+TabTeleports:AddButton({
+    Name = "PESO 100 KG",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/8JMxhyXL"))()
+    end
+})
+
+TabTeleports:AddButton({
+    Name = "QG da BLD",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/P8WZJjxK"))()
+    end
+})
+
+
+TabTeleports:AddButton({
+    Name = "spawn",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/uAWNPsaB"))()
+    end
+})
+
+
+TabTeleports:AddButton({
+    Name = "Casa do Magekko",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/XHUh3yr4"))()
+    end
+})
+
+TabTeleports:AddButton({
+    Name = "Casa de Resistencia",
+    Callback = function()
+  
+loadstring(game:HttpGet("https://pastebin.com/raw/QAtZHinL"))()      
+   end
+})
+
+TabTeleports:AddButton({
+    Name = "Banco",
+    Callback = function()
+    
+loadstring(game:HttpGet("https://pastebin.com/raw/ieLAxPWr"))()   
+   end
+})
+
+
+TabTeleports:AddButton({
+    Name = "Dojo",
+    Callback = function()
+   
+loadstring(game:HttpGet("https://pastebin.com/raw/PyezpG3k"))()
+    end
+})
+
+
+TabTeleports:AddButton({
+    Name = "Academia de ouro",
+    Callback = function()
+       
+loadstring(game:HttpGet("https://pastebin.com/raw/wcgpk2KD"))()
+   end
+})
+
+
+local OtherScriptsTab = Window:MakeTab({
+    Name = "Scripts Universais",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Rael hub Brook",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/The-Mimic-Rael-Hub-20921"))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Sander X Brook",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-Sander-x-22769"))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Chat Bypasser",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Chat-Bypasser-V3-24610"))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Infinite Yield",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "AntBan Por chat",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Dex Explorer",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Ghost Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GhostHub-16534"))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "God mode",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/zephyr10101/ignore-touchinterests/main/main", true))()
+    end
+})
+
+OtherScriptsTab:AddButton({
+    Name = "Elevator TP",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/uhKv7gnC"))()
+    end
+})
+
+local respawnTPToggled = false
+
+-- Adicionando o toggle "Respawn TP" à aba "Scripts Universais"
+OtherScriptsTab:AddToggle({
+    Name = "Respawn TP",
+    Default = false,
+    Callback = function(value)
+        respawnTPToggled = value
+        if respawnTPToggled then
+            loadstring(game:HttpGet("https://pastebin.com/raw/wYUskxCg"))()
+        end
+    end
+})
+
+local AutoTreinosTab = Window:MakeTab({
+    Name = "Auto Treinos",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local supinoToggled = false
+local npcmissaoToggled = false
+local pesoToggled = false
+local barraToggled = false
+
+-- Adicionando toggle "Supino"
+AutoTreinosTab:AddToggle({
+    Name = "Supino",
+    Default = false,
+    Callback = function(value)
+        supinoToggled = value
+        if supinoToggled then
+            while supinoToggled do
+                wait(0.01)
+                local args = {
+                    [1] = "supin",
+                    [2] = game:GetService("Players").LocalPlayer
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Gym"):FireServer(unpack(args))
+            end
+        end
+    end
+})
+
+AutoTreinosTab:AddToggle({
+    Name = "NPC Missao",
+    Callback = function(value)
+        npcTalkToggled = value
+        if npcTalkToggled then
+            while npcTalkToggled do
+                wait(0.5)
+                local clickdetector = game:GetService("Workspace").Interactive.guy8.NpcTalk.ClickDetector
+                fireclickdetector(clickdetector)
+            end
+        end
+    end
+})
+
+AutoTreinosTab:AddToggle({
+    Name = "Peso",
+    Default = false,
+    Callback = function(value)
+        pesoToggled = value
+        if pesoToggled then
+            spawn(function()
+                while pesoToggled do
+                    wait(0.01)
+                    local args = {
+                        [1] = game:GetService("Players").LocalPlayer
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("HandP"):FireServer(unpack(args))
+                end
+            end)
+        end
+    end
+})
+
+AutoTreinosTab:AddToggle({
+    Name = "Barra",
+    Callback = function(value)
+        barToggled = value
+        if barToggled then
+            while barToggled do
+                wait(0.01)
+                local args = {
+                    [1] = "bar",
+                    [2] = game:GetService("Players").LocalPlayer
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Gym"):FireServer(unpack(args))
+            end
+        end
+    end
+})
+
+local LojaTab = Window:MakeTab({
+    Name = "Loja Do Carlão",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+LojaTab:AddButton({
+    Name = "Frango",
+    Callback = function()
+        local args = {
+            [1] = "chicken",
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("BuyItem"):InvokeServer(unpack(args))
+    end
+})
+
+LojaTab:AddButton({
+    Name = "Água",
+    Callback = function()
+        local args = {
+            [1] = "water",
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("BuyItem"):InvokeServer(unpack(args))
+    end
+})
+
+LojaTab:AddButton({
+    Name = "Coca cola",
+    Callback = function()
+        local args = {
+            [1] = "soda",
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("BuyItem"):InvokeServer(unpack(args))
+    end
+})
+
+LojaTab:AddButton({
+    Name = "Bomba",
+    Callback = function()
+        local args = {
+            [1] = "medicine",
+            [2] = game:GetService("Players").LocalPlayer
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Functions"):WaitForChild("BuyItem"):InvokeServer(unpack(args))
+    end
+})
+
+local CreditsTab = Window:MakeTab({
+    Name = "Menu Credits",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+CreditsTab:AddLabel("Codigo do menu foi escrito por: Spectador")
+CreditsTab:AddLabel("Ideias de Scripts para o menu: Spectador e Magekko")
+CreditsTab:AddLabel("Não use esse script em servidores publicos do Fighting academy")
+CreditsTab:AddLabel("Sujeito a Ban no jogo, e do meu sistema")
+
+
+OrionLib:Init()

